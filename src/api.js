@@ -4,6 +4,12 @@
 
 const TOKEN_KEY = "token";
 
+// Base URL for the backend API. Defaults to "/api" so the Vite dev proxy
+// (and any same-origin reverse proxy in production) keeps working untouched.
+// For a cross-origin backend, set VITE_API_URL (e.g. https://api.example.com)
+// at build time and ensure the backend allows CORS for this frontend's origin.
+const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
+
 function getToken() {
     return localStorage.getItem(TOKEN_KEY);
 }
@@ -28,7 +34,7 @@ async function request(path, { method = "GET", body, auth: useAuth = true } = {}
 
     let res;
     try {
-        res = await fetch(`/api${path}`, {
+        res = await fetch(`${API_BASE}${path}`, {
             method,
             headers,
             body: body !== undefined ? JSON.stringify(body) : undefined,
