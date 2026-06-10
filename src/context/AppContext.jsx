@@ -5,7 +5,7 @@ import {
     useEffect,
     useCallback,
 } from "react";
-import { templates, emailMessages } from "../api.js";
+import { templates, emailMessages, auth } from "../api.js";
 
 const AppContext = createContext(null);
 
@@ -61,6 +61,7 @@ export function AppProvider({ children }) {
         modelos: true,
     });
     const [error, setError] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
 
     const fetchModelos = useCallback(async () => {
         setLoading((l) => ({ ...l, modelos: true }));
@@ -99,10 +100,19 @@ export function AppProvider({ children }) {
         }
     }, []);
 
+    const fetchCurrentUser = useCallback(async () => {
+        try {
+            setCurrentUser(await auth.me());
+        } catch {
+            setCurrentUser(null);
+        }
+    }, []);
+
     useEffect(() => {
         fetchModelos();
         fetchComunicacoes();
-    }, [fetchModelos, fetchComunicacoes]);
+        fetchCurrentUser();
+    }, [fetchModelos, fetchComunicacoes, fetchCurrentUser]);
 
     // Local-only removal — no DELETE endpoint exists on the backend.
     const removeComunicacao = useCallback((id) => {
@@ -173,6 +183,7 @@ export function AppProvider({ children }) {
         fetchComunicacoes,
         modelos,
         addComunicacao,
+        currentUser,
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -44,9 +44,7 @@ function NovoModeloModal({ onSave, onClose }) {
                     placeholder="Ex: Boas-vindas"
                     hasError={!!errors.nome}
                 />
-                {errors.nome && (
-                    <div className="form-error">{errors.nome}</div>
-                )}
+                {errors.nome && <div className="form-error">{errors.nome}</div>}
             </FormField>
             <FormField label="Descrição" required>
                 <Input
@@ -55,9 +53,7 @@ function NovoModeloModal({ onSave, onClose }) {
                     placeholder="Descreva o propósito deste modelo"
                     hasError={!!errors.desc}
                 />
-                {errors.desc && (
-                    <div className="form-error">{errors.desc}</div>
-                )}
+                {errors.desc && <div className="form-error">{errors.desc}</div>}
             </FormField>
             <div className="flex justify-end gap-10 mt-14">
                 <button className="btn btn-secondary" onClick={onClose}>
@@ -80,10 +76,10 @@ const CONTENT_TYPES = [
     { value: "HTML", label: "HTML" },
 ];
 
-function VersoesModal({ modelo, onClose }) {
+function VersoesModal({ modelo, onClose, initialShowForm = false }) {
     const [versoes, setVersoes] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showForm, setShowForm] = useState(false);
+    const [showForm, setShowForm] = useState(initialShowForm);
     const [form, setForm] = useState({
         subject: "",
         body: "",
@@ -172,9 +168,7 @@ function VersoesModal({ modelo, onClose }) {
                         }}
                     >
                         <div className="flex items-center justify-between mb-8">
-                            <span className="font-600">
-                                v{v.versionNumber}
-                            </span>
+                            <span className="font-600">v{v.versionNumber}</span>
                             <span
                                 className={`badge ${v.contentType === "HTML" ? "badge-html" : "badge-texto"}`}
                             >
@@ -289,7 +283,13 @@ export default function Modelos({ setPage }) {
     const [error, setError] = useState(null);
     const [showNovo, setShowNovo] = useState(false);
     const [versoesModelo, setVersoesModelo] = useState(null);
+    const [startVersaoForm, setStartVersaoForm] = useState(false);
     const { show, Toast } = useToast();
+
+    const openVersoes = (modelo, comForm) => {
+        setVersoesModelo(modelo);
+        setStartVersaoForm(comForm);
+    };
 
     const fetchLista = useCallback(async () => {
         setLoading(true);
@@ -324,10 +324,7 @@ export default function Modelos({ setPage }) {
                     </div>
                 </div>
                 <div className="flex gap-10">
-                    <button
-                        className="btn btn-secondary"
-                        onClick={fetchLista}
-                    >
+                    <button className="btn btn-secondary" onClick={fetchLista}>
                         <Icon name="history" size={14} color={C.textSub} />{" "}
                         Atualizar
                     </button>
@@ -335,8 +332,7 @@ export default function Modelos({ setPage }) {
                         className="btn btn-primary"
                         onClick={() => setShowNovo(true)}
                     >
-                        <Icon name="plus" size={14} color="white" /> Novo
-                        modelo
+                        <Icon name="plus" size={14} color="white" /> Novo modelo
                     </button>
                 </div>
             </div>
@@ -407,9 +403,7 @@ export default function Modelos({ setPage }) {
                                         <button
                                             className="btn-icon"
                                             title="Ver versões"
-                                            onClick={() =>
-                                                setVersoesModelo(m)
-                                            }
+                                            onClick={() => openVersoes(m, false)}
                                         >
                                             <Icon
                                                 name="history"
@@ -434,6 +428,22 @@ export default function Modelos({ setPage }) {
                                 <div className="modelo-card-lacunas">
                                     {m.description}
                                 </div>
+                                <button
+                                    className="btn btn-secondary w-full"
+                                    style={{
+                                        justifyContent: "center",
+                                        marginBottom: 12,
+                                    }}
+                                    title="Adicionar nova versão"
+                                    onClick={() => openVersoes(m, true)}
+                                >
+                                    <Icon
+                                        name="plus"
+                                        size={14}
+                                        color={C.textSub}
+                                    />{" "}
+                                    Adicionar versão
+                                </button>
                                 <div className="modelo-card-footer">
                                     <span
                                         style={{
@@ -471,7 +481,11 @@ export default function Modelos({ setPage }) {
             {versoesModelo && (
                 <VersoesModal
                     modelo={{ id: versoesModelo.id, nome: versoesModelo.name }}
-                    onClose={() => setVersoesModelo(null)}
+                    initialShowForm={startVersaoForm}
+                    onClose={() => {
+                        setVersoesModelo(null);
+                        setStartVersaoForm(false);
+                    }}
                 />
             )}
 

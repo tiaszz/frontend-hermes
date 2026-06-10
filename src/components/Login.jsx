@@ -85,6 +85,7 @@ function RegisterForm({ onSwitch, onRegistered }) {
         email: "",
         password: "",
         confirm: "",
+        group: "",
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -101,6 +102,7 @@ function RegisterForm({ onSwitch, onRegistered }) {
         if (!form.email.trim()) e.email = "E-mail obrigatório.";
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
             e.email = "E-mail inválido.";
+        if (!form.group.trim()) e.group = "Grupo obrigatório.";
         if (!form.password) e.password = "Senha obrigatória.";
         else if (form.password.length < 6) e.password = "Mínimo 6 caracteres.";
         if (form.password !== form.confirm) e.confirm = "As senhas não coincidem.";
@@ -117,6 +119,7 @@ function RegisterForm({ onSwitch, onRegistered }) {
                 email: form.email.trim(),
                 password: form.password,
                 role: "ROLE_USER",
+                group: form.group.trim(),
             });
             setSuccess(true);
             setTimeout(onSwitch, 2000);
@@ -165,6 +168,16 @@ function RegisterForm({ onSwitch, onRegistered }) {
                 className={`input mb-14${errors.email ? " input-error" : ""}`}
             />
             {errors.email && <p className="form-error mb-8">{errors.email}</p>}
+
+            <label className="form-label">Grupo (cargo na empresa)</label>
+            <input
+                value={form.group}
+                onChange={set("group")}
+                placeholder="Ex.: Marketing, Vendas, RH, TI"
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                className={`input mb-14${errors.group ? " input-error" : ""}`}
+            />
+            {errors.group && <p className="form-error mb-8">{errors.group}</p>}
 
             <label className="form-label">Senha</label>
             <input

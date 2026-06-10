@@ -6,9 +6,10 @@ import Nova from "./components/Nova.jsx";
 import Historico from "./components/Historico.jsx";
 import Modelos from "./components/Modelos.jsx";
 import Configuracoes from "./components/Configuracoes.jsx";
-import { AppProvider } from "./context/AppContext.jsx";
+import { AppProvider, useApp } from "./context/AppContext.jsx";
 import { Icon } from "./components/UI.jsx";
 import { auth } from "./api.js";
+import { roleLabel } from "./roles.js";
 
 const NAV_ITEMS = [
     { key: "painel", label: "Painel", icon: "home" },
@@ -19,8 +20,10 @@ const NAV_ITEMS = [
 ];
 
 function Sidebar({ page, setPage, onLogout }) {
-    const userName = localStorage.getItem("userName") || "Admin";
-    const initial = userName.charAt(0).toUpperCase();
+    const { currentUser } = useApp();
+    const userName = currentUser?.name || "—";
+    const userRole = roleLabel(currentUser?.role);
+    const initial = (currentUser?.name || "?").charAt(0).toUpperCase();
 
     return (
         <aside className="sidebar">
@@ -55,7 +58,7 @@ function Sidebar({ page, setPage, onLogout }) {
                 <div className="avatar">{initial}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="sidebar-footer-name">{userName}</div>
-                    <div className="sidebar-footer-role">Administrador</div>
+                    <div className="sidebar-footer-role">{userRole}</div>
                 </div>
                 <button className="btn-icon" onClick={onLogout} aria-label="Sair">
                     <Icon name="externalLink" size={16} color="#555555" />

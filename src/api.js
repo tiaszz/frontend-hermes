@@ -83,6 +83,10 @@ export const auth = {
     isAuthenticated() {
         return !!getToken();
     },
+    // Returns the currently logged-in user { id, name, email, role, createdAt }.
+    me() {
+        return request("/auth/me");
+    },
 };
 
 export const templates = {
