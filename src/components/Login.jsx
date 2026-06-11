@@ -5,7 +5,7 @@ import { users } from "../api.js";
 import { GROUPS } from "../roles.js";
 import hero from "../assets/hero.png";
 
-function LoginForm({ onLogin, onSwitch }) {
+function LoginForm({ onLogin, onSwitch, onForgot }) {
     const [user, setUser] = useState("");
     const [pass, setPass] = useState("");
     const [error, setError] = useState("");
@@ -59,7 +59,9 @@ function LoginForm({ onLogin, onSwitch }) {
                     <input type="checkbox" style={{ accentColor: "#1e5631" }} />
                     Manter conectado
                 </label>
-                <span className="login-forgot">Esqueci minha senha</span>
+                <span className="login-forgot" onClick={onForgot}>
+                    Esqueci minha senha
+                </span>
             </div>
 
             <button
@@ -80,7 +82,7 @@ function LoginForm({ onLogin, onSwitch }) {
     );
 }
 
-function RegisterForm({ onSwitch, onRegistered }) {
+function RegisterForm({ onSwitch }) {
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -227,6 +229,146 @@ function RegisterForm({ onSwitch, onRegistered }) {
     );
 }
 
+function ForgotPasswordForm({ onSwitch }) {
+    const [step, setStep] = useState("request");
+    const [email, setEmail] = useState("");
+    const [form, setForm] = useState({ token: "", password: "", confirm: "" });
+    const [errors, setErrors] = useState({});
+    const [info, setInfo] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+
+    const setField = (k) => (e) => {
+        setForm((f) => ({ ...f, [k]: e.target.value }));
+        setErrors((er) => ({ ...er, [k]: "" }));
+    };
+
+    const handleRequest = async () => {
+        if (!email.trim()) {
+            setErrors({ email: "E-mail obrigatório." });
+            return;
+        }
+        setErrors({});
+        setLoading(true);
+        try {
+            await auth.forgotPassword(email.trim());
+            setInfo("Enviamos um token de recuperação para o seu e-mail.");
+            setStep("reset");
+        } catch (err) {
+            setErrors({ email: err.message ?? "Erro ao enviar e-mail." });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleReset = async () => {
+        const e = {};
+        if (!form.token.trim()) e.token = "Token obrigatório.";
+        if (!form.password) e.password = "Senha obrigatória.";
+        else if (form.password.length < 6) e.password = "Mínimo 6 caracteres.";
+        if (form.password !== form.confirm) e.confirm = "As senhas não coincidem.";
+        if (Object.keys(e).length) {
+            setErrors(e);
+            return;
+        }
+        setLoading(true);
+        try {
+            await auth.resetPassword(form.token.trim(), form.password);
+            setSuccess(true);
+            setTimeout(onSwitch, 2000);
+        } catch (err) {
+            setErrors({ token: err.message ?? "Erro ao redefinir senha." });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (success) {
+        return (
+            <div className="login-form" style={{ textAlign: "center" }}>
+                <div style={{ marginBottom: 16 }}>
+                    <Icon name="check" size={40} color="#1e5631" />
+                </div>
+                <h2 className="login-title">Senha alterada!</h2>
+                <p className="login-desc">Redirecionando para o login...</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="login-form">
+            <h2 className="login-title">Recuperar senha</h2>
+            <p className="login-desc">
+                {step === "request"
+                    ? "Informe seu e-mail para receber um token de recuperação."
+                    : "Cole o token recebido por e-mail e defina uma nova senha."}
+            </p>
+
+            {info && <p className="form-error mb-8" style={{ color: "#1e5631" }}>{info}</p>}
+
+            {step === "request" ? (
+                <>
+                    <label className="form-label">E-mail</label>
+                    <input
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); setErrors({}); }}
+                        placeholder="joao@empresa.com"
+                        onKeyDown={(e) => e.key === "Enter" && handleRequest()}
+                        className={`input mb-14${errors.email ? " input-error" : ""}`}
+                    />
+                    {errors.email && <p className="form-error mb-8">{errors.email}</p>}
+
+                    <button className="login-btn" onClick={handleRequest} disabled={loading}>
+                        {loading ? "Enviando..." : "Enviar token"}
+                    </button>
+                </>
+            ) : (
+                <>
+                    <label className="form-label">Token</label>
+                    <input
+                        value={form.token}
+                        onChange={setField("token")}
+                        placeholder="Token recebido por e-mail"
+                        className={`input mb-14${errors.token ? " input-error" : ""}`}
+                    />
+                    {errors.token && <p className="form-error mb-8">{errors.token}</p>}
+
+                    <label className="form-label">Nova senha</label>
+                    <input
+                        type="password"
+                        value={form.password}
+                        onChange={setField("password")}
+                        placeholder="••••••••"
+                        className={`input mb-14${errors.password ? " input-error" : ""}`}
+                    />
+                    {errors.password && <p className="form-error mb-8">{errors.password}</p>}
+
+                    <label className="form-label">Confirmar senha</label>
+                    <input
+                        type="password"
+                        value={form.confirm}
+                        onChange={setField("confirm")}
+                        placeholder="••••••••"
+                        onKeyDown={(e) => e.key === "Enter" && handleReset()}
+                        className={`input mb-14${errors.confirm ? " input-error" : ""}`}
+                    />
+                    {errors.confirm && <p className="form-error mb-8">{errors.confirm}</p>}
+
+                    <button className="login-btn" onClick={handleReset} disabled={loading}>
+                        {loading ? "Salvando..." : "Redefinir senha"}
+                    </button>
+                </>
+            )}
+
+            <p className="login-api-note">
+                <span className="login-api-link" onClick={onSwitch}>
+                    Voltar para o login
+                </span>
+            </p>
+        </div>
+    );
+}
+
 export default function Login({ onLogin }) {
     const [mode, setMode] = useState("login");
 
@@ -267,16 +409,18 @@ export default function Login({ onLogin }) {
             </div>
 
             <div className="login-right">
-                {mode === "login" ? (
+                {mode === "login" && (
                     <LoginForm
                         onLogin={onLogin}
                         onSwitch={() => setMode("register")}
+                        onForgot={() => setMode("forgot")}
                     />
-                ) : (
-                    <RegisterForm
-                        onSwitch={() => setMode("login")}
-                        onRegistered={onLogin}
-                    />
+                )}
+                {mode === "register" && (
+                    <RegisterForm onSwitch={() => setMode("login")} />
+                )}
+                {mode === "forgot" && (
+                    <ForgotPasswordForm onSwitch={() => setMode("login")} />
                 )}
             </div>
         </div>

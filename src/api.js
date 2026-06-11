@@ -89,6 +89,22 @@ export const auth = {
     isAuthenticated() {
         return !!getToken();
     },
+    // Requests a password-reset token, e-mailed to the user by the backend.
+    forgotPassword(email) {
+        return request("/auth/forgot-password", {
+            method: "POST",
+            body: { email },
+            auth: false,
+        });
+    },
+    // Sets a new password using the token from the recovery e-mail.
+    resetPassword(token, password) {
+        return request("/auth/reset-password", {
+            method: "POST",
+            body: { token, password },
+            auth: false,
+        });
+    },
     // Returns the currently logged-in user { id, name, email, role, createdAt }.
     me() {
         return request("/auth/me");
