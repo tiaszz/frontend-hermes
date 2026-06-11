@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Icon } from "../components/UI.jsx";
 import { auth } from "../api.js";
 import { users } from "../api.js";
+import { GROUPS } from "../roles.js";
 import hero from "../assets/hero.png";
 
 function LoginForm({ onLogin, onSwitch }) {
@@ -119,7 +120,7 @@ function RegisterForm({ onSwitch, onRegistered }) {
                 email: form.email.trim(),
                 password: form.password,
                 role: "ROLE_USER",
-                group: form.group.trim(),
+                groupName: form.group,
             });
             setSuccess(true);
             setTimeout(onSwitch, 2000);
@@ -170,13 +171,20 @@ function RegisterForm({ onSwitch, onRegistered }) {
             {errors.email && <p className="form-error mb-8">{errors.email}</p>}
 
             <label className="form-label">Grupo (cargo na empresa)</label>
-            <input
+            <select
                 value={form.group}
                 onChange={set("group")}
-                placeholder="Ex.: Marketing, Vendas, RH, TI"
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 className={`input mb-14${errors.group ? " input-error" : ""}`}
-            />
+            >
+                <option value="" disabled>
+                    Selecione a área
+                </option>
+                {GROUPS.map((g) => (
+                    <option key={g.value} value={g.value}>
+                        {g.label}
+                    </option>
+                ))}
+            </select>
             {errors.group && <p className="form-error mb-8">{errors.group}</p>}
 
             <label className="form-label">Senha</label>

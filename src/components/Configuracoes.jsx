@@ -3,7 +3,7 @@ import { Icon, FormField, Input, Select, Modal, useToast } from "../components/U
 import { C } from "../styles.js";
 import { users } from "../api.js";
 import { useApp } from "../context/AppContext.jsx";
-import { roleLabel } from "../roles.js";
+import { roleLabel, GROUPS } from "../roles.js";
 import { version } from "../../package.json";
 
 const ROLES = [
@@ -51,7 +51,7 @@ function NovoUsuarioModal({ onSave, onClose }) {
                 email: form.email.trim(),
                 password: form.password,
                 role: form.role,
-                group: form.group.trim(),
+                groupName: form.group,
             });
             onClose();
         } catch (err) {
@@ -75,7 +75,7 @@ function NovoUsuarioModal({ onSave, onClose }) {
                 <Select value={form.role} onChange={set("role")} options={ROLES} />
             </FormField>
             <FormField label="Grupo (cargo na empresa)" required>
-                <Input value={form.group} onChange={set("group")} placeholder="Ex.: Marketing, Vendas, RH, TI" hasError={!!errors.group} />
+                <Select value={form.group} onChange={set("group")} options={GROUPS} placeholder="Selecione a área" />
                 {errors.group && <div className="form-error">{errors.group}</div>}
             </FormField>
             <div className="row-2">

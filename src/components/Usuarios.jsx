@@ -9,20 +9,11 @@ import {
 } from "../components/UI.jsx";
 import { C } from "../styles.js";
 import { users } from "../api.js";
+import { GROUPS } from "../roles.js";
 
 const ROLES = [
     { value: "ROLE_ADMIN", label: "Administrador" },
     { value: "ROLE_USER", label: "Usuário" },
-];
-
-// Company areas — must match the backend GroupArea enum exactly.
-const GROUPS = [
-    { value: "TI", label: "TI" },
-    { value: "RH", label: "RH" },
-    { value: "MARKETING", label: "Marketing" },
-    { value: "FINANCEIRO", label: "Financeiro" },
-    { value: "ADMINISTRATIVO", label: "Administrativo" },
-    { value: "COMERCIAL", label: "Comercial" },
 ];
 
 function ROLE_LABEL(role) {
