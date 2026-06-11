@@ -15,6 +15,16 @@ const ROLES = [
     { value: "ROLE_USER", label: "Usuário" },
 ];
 
+// Company areas — must match the backend GroupArea enum exactly.
+const GROUPS = [
+    { value: "TI", label: "TI" },
+    { value: "RH", label: "RH" },
+    { value: "MARKETING", label: "Marketing" },
+    { value: "FINANCEIRO", label: "Financeiro" },
+    { value: "ADMINISTRATIVO", label: "Administrativo" },
+    { value: "COMERCIAL", label: "Comercial" },
+];
+
 function ROLE_LABEL(role) {
     return ROLES.find((r) => r.value === role)?.label ?? role;
 }
@@ -26,6 +36,7 @@ function NovoUsuarioModal({ onSave, onClose }) {
         password: "",
         confirm: "",
         role: "ROLE_USER",
+        groupName: "",
     });
     const [errors, setErrors] = useState({});
     const [saving, setSaving] = useState(false);
@@ -46,6 +57,7 @@ function NovoUsuarioModal({ onSave, onClose }) {
             e.password = "Mínimo 6 caracteres.";
         if (form.password !== form.confirm)
             e.confirm = "As senhas não coincidem.";
+        if (!form.groupName) e.groupName = "Grupo obrigatório.";
         return e;
     };
 
@@ -62,6 +74,7 @@ function NovoUsuarioModal({ onSave, onClose }) {
                 email: form.email.trim(),
                 password: form.password,
                 role: form.role,
+                groupName: form.groupName,
             });
             onClose();
         } catch (err) {
@@ -103,6 +116,18 @@ function NovoUsuarioModal({ onSave, onClose }) {
                     onChange={set("role")}
                     options={ROLES}
                 />
+            </FormField>
+
+            <FormField label="Grupo / Área" required>
+                <Select
+                    value={form.groupName}
+                    onChange={set("groupName")}
+                    options={GROUPS}
+                    placeholder="Selecione a área"
+                />
+                {errors.groupName && (
+                    <div className="form-error">{errors.groupName}</div>
+                )}
             </FormField>
 
             <div className="row-2">

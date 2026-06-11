@@ -134,10 +134,6 @@ export function AppProvider({ children }) {
         });
     }, []);
 
-    const updateStats = useCallback((newStats) => {
-        setStats((s) => ({ ...s, ...newStats }));
-    }, []);
-
     const addComunicacao = useCallback(
         async ({ dest, modeloId, versaoId, versao, lacunas, cc, cco, scheduledAt }) => {
             const body = {
@@ -177,7 +173,6 @@ export function AppProvider({ children }) {
         removeComunicacao,
         updateComunicacaoStatus,
         stats,
-        updateStats,
         loading,
         error,
         fetchComunicacoes,

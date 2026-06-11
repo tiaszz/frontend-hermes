@@ -1,70 +1,7 @@
 import { useState } from "react";
-import {
-    StatCard,
-    Badge,
-    Icon,
-    Modal,
-    FormField,
-    Input,
-    useToast,
-} from "../components/UI.jsx";
+import { StatCard, Badge, Icon, Modal, useToast } from "../components/UI.jsx";
 import { C } from "../styles.js";
 import { useApp } from "../context/AppContext.jsx";
-
-function EditStatsModal({ stats, onSave, onClose }) {
-    const [form, setForm] = useState({ ...stats });
-    const set = (k) => (v) => setForm((f) => ({ ...f, [k]: Number(v) }));
-    return (
-        <Modal
-            title="Editar estatísticas do painel"
-            onClose={onClose}
-            width={400}
-        >
-            <FormField label="Enviados hoje">
-                <Input
-                    type="number"
-                    value={form.enviadosHoje}
-                    onChange={set("enviadosHoje")}
-                />
-            </FormField>
-            <FormField label="Agendados (próx. 24h)">
-                <Input
-                    type="number"
-                    value={form.agendados}
-                    onChange={set("agendados")}
-                />
-            </FormField>
-            <FormField label="Burst máximo (por min)">
-                <Input
-                    type="number"
-                    value={form.burstMax}
-                    onChange={set("burstMax")}
-                />
-            </FormField>
-            <FormField label="Erros (24h)">
-                <Input
-                    type="number"
-                    value={form.erros}
-                    onChange={set("erros")}
-                />
-            </FormField>
-            <div className="flex justify-end gap-10 mt-14">
-                <button className="btn btn-secondary" onClick={onClose}>
-                    Cancelar
-                </button>
-                <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                        onSave(form);
-                        onClose();
-                    }}
-                >
-                    Salvar
-                </button>
-            </div>
-        </Modal>
-    );
-}
 
 function Painel({ setPage }) {
     const {
@@ -72,13 +9,11 @@ function Painel({ setPage }) {
         removeComunicacao,
         updateComunicacaoStatus,
         stats,
-        updateStats,
         loading,
         error,
         fetchComunicacoes,
     } = useApp();
 
-    const [showEditStats, setShowEditStats] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(null);
     const { show, Toast } = useToast();
 
@@ -100,13 +35,6 @@ function Painel({ setPage }) {
                     >
                         <Icon name="history" size={14} color={C.textSub} />{" "}
                         Atualizar
-                    </button>
-                    <button
-                        className="btn btn-secondary"
-                        onClick={() => setShowEditStats(true)}
-                    >
-                        <Icon name="edit" size={14} color={C.textSub} /> Editar
-                        stats
                     </button>
                     <button
                         className="btn btn-primary"
@@ -283,14 +211,6 @@ function Painel({ setPage }) {
                     )}
                 </div>
             </div>
-
-            {showEditStats && (
-                <EditStatsModal
-                    stats={stats}
-                    onSave={updateStats}
-                    onClose={() => setShowEditStats(false)}
-                />
-            )}
 
             {confirmDelete && (
                 <Modal
